@@ -3,8 +3,10 @@
 */
 
 using System.Collections.Generic;
-using GameCore.Systems;
+using GameCore.Actor;
+using GameCore.MonoBehaviors;
 using UnityEngine;
+using EventType = GameCore.Enum.EventType;
 
 namespace GameCore.GlobalVars
 {
@@ -26,31 +28,49 @@ namespace GameCore.GlobalVars
             }
         }
 
+        #endregion Singleton
+
+        #region UnityBehaviour
+
         private void OnEnable()
         {
             G.GPlayerController.OnEnable();
+            G.GameEventManager.AddEventListener(EventType.DayNightSwitch, _OnDayNightSwitch);
+            G.GameEventManager.AddEventListener(EventType.LevelPass,      _OnLevelPass);
         }
 
         private void OnDisable()
         {
             G.GPlayerController.OnDisable();
+            G.GameEventManager.RemoveEventListener(EventType.DayNightSwitch, _OnDayNightSwitch);
+            G.GameEventManager.RemoveEventListener(EventType.LevelPass,      _OnLevelPass);
         }
 
-        #endregion Singleton
+        #endregion UnityBehaviour
 
-        private void Update()
+        #region PrivateMethods
+
+        private void _OnDayNightSwitch()
         {
-            G.GPlayerController.Update();
-            foreach (var system in _Systems)
-            {
-                system.Update();
-            }
+            RenderSettings.skybox = RenderSettings.skybox == DaySkybox ? NightSkybox : DaySkybox;
         }
 
-        #region Field
+        private void _OnLevelPass()
+        {
+        }
 
-        private List<SystemBase> _Systems = new List<SystemBase>();
+        #endregion PrivateMethods
 
-        #endregion Field
+        #region Fields
+
+        public static PlayerManager Player        => PlayerManager.Instance;
+        public static LevelManager  GLevelManager => LevelManager.Instance;
+
+        public List<ShadowLight> ShadowLights = new List<ShadowLight>();
+
+        public Material DaySkybox;
+        public Material NightSkybox;
+
+        #endregion Fields
     }
 }
