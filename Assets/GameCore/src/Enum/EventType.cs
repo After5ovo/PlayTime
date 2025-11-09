@@ -10,12 +10,14 @@ namespace GameCore.Enum
         GameOver,
         LevelPass,
         LevelRestart,
-
         DayNightSwitch,
 
         #region Player
 
         Interact,
+        ItemCollect,
+        EntryShadow,
+        ExitShadow,
 
         #endregion Player
     }

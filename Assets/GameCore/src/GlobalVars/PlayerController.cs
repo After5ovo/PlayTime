@@ -41,6 +41,8 @@ namespace GameCore.GlobalVars
             _InputController.GamePlay.Interact.performed       += _OnInteractPerformed;
             _InputController.GamePlay.DayNightSwitch.performed += _OnDayNightSwitch;
             _InputController.UI.Cancel.performed               += _OnCancelPerformed;
+            _InputController.UI.Pause.performed                += _OnPausePerformed;
+            IsEnable                                           =  true;
         }
 
         public void OnDisable()
@@ -55,7 +57,11 @@ namespace GameCore.GlobalVars
             _InputController.GamePlay.Interact.performed       -= _OnInteractPerformed;
             _InputController.GamePlay.DayNightSwitch.performed -= _OnDayNightSwitch;
             _InputController.UI.Cancel.performed               -= _OnCancelPerformed;
+            _InputController.UI.Pause.performed                -= _OnPausePerformed;
             _InputController.Disable();
+            _MovementInput = Vector2.zero;
+            MoveAmount     = 0;
+            IsEnable       = false;
         }
 
         #endregion UnityBehavior
@@ -149,19 +155,17 @@ namespace GameCore.GlobalVars
 
         #region HanldeUI
 
-        public void OnPausePerformed(InputAction.CallbackContext context)
+        private void _OnPausePerformed(InputAction.CallbackContext context)
         {
-            if (!G.GUIManager.UIControllers.ContainsKey("PausePage")) return;
-            var pausePage = G.GUIManager.UIControllers["PausePage"].gameObject;
-            pausePage.SetActive(!pausePage.activeSelf);
+            var pausePage = UIManager.GetUIController("PausePage", G.GUIManager.Dialog);
+            pausePage.gameObject.SetActive(true);
+            Time.timeScale = 0;
             _CheckInputDeviceChange(context);
         }
 
         private void _OnCancelPerformed(InputAction.CallbackContext context)
         {
-            if (!G.GUIManager.UIControllers.ContainsKey("PausePage")) return;
-            var pausePage = G.GUIManager.UIControllers["PausePage"].gameObject;
-            pausePage.SetActive(false);
+            // TODO: 暂停逻辑
             _CheckInputDeviceChange(context);
         }
 
@@ -190,9 +194,11 @@ namespace GameCore.GlobalVars
         #region Fields
 
         private readonly InputControl _InputController;
-        public           float        MoveAmount;
-        public           bool         IsTimeForwardPerformed  = false;
-        public           bool         IsTimeBackwardPerformed = false;
+
+        public float MoveAmount;
+        public bool  IsEnable                = false;
+        public bool  IsTimeForwardPerformed  = false;
+        public bool  IsTimeBackwardPerformed = false;
 
         private Vector2 _MovementInput;
         private Vector2 _CameraInput;

@@ -4,6 +4,7 @@
 
 using GameCore.Commands;
 using GameCore.GlobalVars;
+using GameCore.MonoBehaviors;
 using UnityEngine;
 using EventType = GameCore.Enum.EventType;
 
@@ -34,7 +35,10 @@ namespace GameCore.Actor
 
         private void Update()
         {
-            _HandleMove();
+            if (G.GPlayerController.IsEnable)
+            {
+                _HandleMove();
+            }
         }
 
         private void OnEnable()
@@ -72,11 +76,6 @@ namespace GameCore.Actor
             _GetMoveDirection();
             if (!CurrentBrain.Locomotion) return;
 
-            // // 保留法线分量
-            // var normalVelocity = Vector3.Dot(CurrentBrain.Locomotion.Velocity, transform.up) * transform.up;
-            // CurrentBrain.Locomotion.Velocity =  _MoveDirection;
-            // CurrentBrain.Locomotion.Velocity += normalVelocity;
-
             if (IsInShadow)
             {
                 CurrentBrain.Locomotion.Velocity = _MoveDirection;
@@ -85,6 +84,7 @@ namespace GameCore.Actor
             {
                 CurrentBrain.Locomotion.Velocity.x = _MoveDirection.x;
                 CurrentBrain.Locomotion.Velocity.z = _MoveDirection.z;
+                CurrentBrain.Locomotion.MoveAmount = G.GPlayerController.MoveAmount;
             }
         }
 
@@ -121,6 +121,7 @@ namespace GameCore.Actor
         public static PlayerManager Instance;
         public        Brain         NormalBrain;
         public        Brain         ShadowBrain;
+        public        Inventory     PlayerInventory;
 
         private GameObject      _NormalModel;
         private GameObject      _ShadowModel;
